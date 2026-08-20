@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | EventFlow{% endblock %}
+{% block content %}
+<h1>Welcome, {{ user.name }}</h1>
+<p>{{ user.welcome_message() }}</p>
+
+{% if user.role == 'organizer' %}
+    <a class="button" href="{{ url_for('create_event') }}">Create event</a>
+    <h2>Your events</h2>
+    <section class="grid">
+        {% for event in organizer_events %}
+            <article class="card">
+                <h3>{{ event.title }}</h3>
+                <p>{{ event.tickets_sold }} tickets sold</p>
+                <p>GHS {{ '%.2f'|format(event.sales) }} total sales</p>
+                <a href="{{ url_for('event_details', event_id=event.id) }}">Manage event</a>
+            </article>
+        {% else %}
+            <p>You have not created an event yet.</p>
+        {% endfor %}
+    </section>
+{% else %}
+    <a class="button" href="{{ url_for('events') }}">Find events</a>
+    <h2>Your tickets</h2>
+    <section class="grid">
+        {% for ticket in tickets %}
+            <article class="card">
+                <h3>{{ ticket.event.title }}</h3>
+                <p>{{ ticket.ticket_type }} ticket</p>
+                <a href="{{ url_for('ticket', registration_id=ticket.id) }}">Open ticket</a>
+            </article>
+        {% else %}
+            <p>You have no tickets yet.</p>
+        {% endfor %}
+    </section>
+    <h2>Reminders</h2>
+    {% for reminder in reminders %}
+        <p class="card">{{ reminder.message }}</p>
+    {% else %}
+        <p>No reminders. They appear for registered events starting within 24 hours.</p>
+    {% endfor %}
+    {% if reminders %}
+        <script>
+            alert({{ reminders | map(attribute='message') | join('\n\n') | tojson }});
+        </script>
+    {% endif %}
+{% endif %}
+{% endblock %}

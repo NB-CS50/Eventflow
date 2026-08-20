@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} | EventFlow{% endblock %}
+{% block content %}
+<section class="card">
+    <h1>{{ event.title }}</h1>
+    <p><strong>Category:</strong> {{ event.category }}</p>
+    <p><strong>Date:</strong> {{ event.date_time.replace('T', ' ') }}</p>
+    <p><strong>Location:</strong> {{ event.location }}</p>
+    <p><strong>Spaces left:</strong> {{ spaces }}</p>
+    <p><strong>Price:</strong> {{ 'Free' if event.price == 0 else 'GHS %.2f'|format(event.price) }}</p>
+    <p><strong>Reminder:</strong> {{ event.reminder_hours }} hours before the event</p>
+
+    {% if weather.error %}
+        <p class="message error">{{ weather.error }}</p>
+    {% else %}
+        <div class="weather">
+            <strong>Live weather</strong>
+            <p>{{ weather.place }}{% if weather.country %}, {{ weather.country }}{% endif %}</p>
+            <p>{{ weather.temperature }}°C, {{ weather.condition }}, {{ weather.rain }} mm rain</p>
+        </div>
+    {% endif %}
+
+    {% if session.get('role') == 'participant' and not registered and spaces > 0 %}
+        <form method="post" action="{{ url_for('register_for_event', event_id=event.event_id) }}">
+            <button type="submit">Register for event</button>
+        </form>
+    {% elif registered %}
+        <p>You already registered for this event.</p>
+    {% endif %}
+</section>
+
+{% if session.get('user_id') == event.organizer_id %}
+    <section class="card space-top">
+        <h2>Attendance</h2>
+        <form class="search" method="post" action="{{ url_for('check_in', event_id=event.event_id) }}">
+            <input name="ticket_code" placeholder="Enter ticket code" required>
+            <button type="submit">Check in</button>
+        </form>
+        {% for person in attendees %}
+            <p>{{ person.participant_name }}: {{ 'Checked in' if person.checked_in else 'Not checked in' }}</p>
+        {% else %}
+            <p>No participants yet.</p>
+        {% endfor %}
+    </section>
+{% endif %}
+{% endblock %}

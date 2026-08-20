@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Home | EventFlow{% endblock %}
+{% block content %}
+<section class="hero">
+    <h1>Plan events without stress.</h1>
+    <p>Create events, register, receive tickets and check the weather.</p>
+    <a class="button" href="{{ url_for('events') }}">View events</a>
+</section>
+{% endblock %}

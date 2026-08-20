@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Ticket | EventFlow{% endblock %}
+{% block content %}
+<section class="ticket card">
+    <p>EVENTFLOW TICKET</p>
+    <h1>{{ event.title }}</h1>
+    <p>{{ event.date_time.replace('T', ' ') }}</p>
+    <p>{{ event.location }}</p>
+    <p class="ticket-code">{{ ticket.ticket_code }}</p>
+    <p>{{ ticket.ticket_type }} ticket</p>
+    <p>{{ 'Checked in' if ticket.checked_in else 'Valid' }}</p>
+</section>
+{% endblock %}

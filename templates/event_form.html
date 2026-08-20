@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Create Event | EventFlow{% endblock %}
+{% block content %}
+<section class="card form-card">
+    <h1>Create event</h1>
+    <form method="post">
+        <label>Title<input name="title" required></label>
+        <label>Category
+            <select name="category">
+                {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>Custom category
+            <input name="custom_category" placeholder="Fill this only if you choose Other">
+        </label>
+        <label>Date and time<input type="datetime-local" name="date_time" required></label>
+        <label>Location<input name="location" placeholder="Accra, Ghana" required></label>
+        <label>Capacity<input type="number" name="capacity" min="1" value="20" required></label>
+        <label>Price in GHS<input type="number" name="price" min="0" step="0.01" value="0" required></label>
+        <label>Reminder time
+            <select name="reminder_hours">
+                <option value="1">1 hour before</option>
+                <option value="3">3 hours before</option>
+                <option value="6">6 hours before</option>
+                <option value="12">12 hours before</option>
+                <option value="24" selected>24 hours before</option>
+                <option value="48">48 hours before</option>
+            </select>
+        </label>
+        <button type="submit">Create event</button>
+    </form>
+</section>
+{% endblock %}
