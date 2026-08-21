@@ -3,7 +3,7 @@
 {% block content %}
 <section class="card">
     <h1>{{ event.title }}</h1>
-    <p><strong>Category:</strong> {{ event.category }}</p>
+    <p><span class="tag">{{ event.category }}</span></p>
     <p><strong>Date:</strong> {{ event.date_time.replace('T', ' ') }}</p>
     <p><strong>Location:</strong> {{ event.location }}</p>
     <p><strong>Spaces left:</strong> {{ spaces }}</p>
@@ -24,6 +24,8 @@
         <form method="post" action="{{ url_for('register_for_event', event_id=event.event_id) }}">
             <button type="submit">Register for event</button>
         </form>
+    {% elif session.get('user_id') == event.organizer_id %}
+        <p>You created this event.</p>
     {% elif registered %}
         <p>You already registered for this event.</p>
     {% endif %}

@@ -9,6 +9,14 @@ import requests
 
 DATA_FOLDER = Path(__file__).resolve().parent / "data"
 
+CITY_LOCATIONS = [
+    {"city": "Accra", "latitude": 5.60, "longitude": -0.19},
+    {"city": "Kumasi", "latitude": 6.69, "longitude": -1.62},
+    {"city": "Tamale", "latitude": 9.40, "longitude": -0.84},
+    {"city": "Cape Coast", "latitude": 5.13, "longitude": -1.28},
+    {"city": "Takoradi", "latitude": 4.90, "longitude": -1.78},
+]
+
 
 def load_data(filename):
     """Read a JSON file."""
@@ -86,6 +94,44 @@ def get_weather(location):
         }
     except requests.RequestException:
         return {"error": "Weather could not load. Check your internet."}
+
+
+def get_city_weather():
+    """Get live weather for the homepage cities."""
+    latitudes = []
+    longitudes = []
+    for location in CITY_LOCATIONS:
+        latitudes.append(str(location["latitude"]))
+        longitudes.append(str(location["longitude"]))
+
+    try:
+        response = requests.get(
+            "https://api.open-meteo.com/v1/forecast",
+            params={
+                "latitude": ",".join(latitudes),
+                "longitude": ",".join(longitudes),
+                "current": "temperature_2m,weather_code",
+            },
+            timeout=10,
+        )
+        response.raise_for_status()
+        results = response.json()
+        weather_cards = []
+        for number in range(len(CITY_LOCATIONS)):
+            current = results[number].get("current", {})
+            weather_cards.append(
+                {
+                    "city": CITY_LOCATIONS[number]["city"],
+                    "temperature": current.get("temperature_2m"),
+                    "condition": weather_word(current.get("weather_code")),
+                }
+            )
+        return weather_cards
+    except (requests.RequestException, IndexError, TypeError):
+        weather_cards = []
+        for location in CITY_LOCATIONS:
+            weather_cards.append({"city": location["city"], "error": True})
+        return weather_cards
 
 
 def make_reminders(participant_id):
