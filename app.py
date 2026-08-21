@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 
-from helpers import copy_categories, get_weather, load_data, make_reminders, save_data
+from helpers import copy_categories, get_city_weather, get_weather, load_data, make_reminders, save_data
 from models import Event, Organizer, Participant, Registration, event_from_dict, user_from_dict
 
 
@@ -57,7 +57,11 @@ def find_event(event_id):
 @app.get("/")
 def home():
     """Show the home page."""
-    return render_template("home.html")
+    return render_template(
+        "home.html",
+        categories=CATEGORIES[:8],
+        city_weather=get_city_weather(),
+    )
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -67,6 +71,7 @@ def register():
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
+        confirm_password = request.form.get("confirm_password", "")
         role = request.form.get("role", "")
         users = load_data("users.json")
 
@@ -75,10 +80,12 @@ def register():
             if saved_user["email"] == email:
                 email_exists = True
 
-        if not name or not email or not password:
+        if not name or not email or not password or not confirm_password:
             flash("Complete every field.", "error")
         elif len(password) < 6:
             flash("Password must have at least 6 characters.", "error")
+        elif password != confirm_password:
+            flash("Passwords do not match.", "error")
         elif role not in {"organizer", "participant"}:
             flash("Choose a valid role.", "error")
         elif email_exists:
@@ -125,7 +132,7 @@ def logout():
 
 @app.get("/dashboard")
 def dashboard():
-    """Show the correct dashboard."""
+    """Show the correct dashboard for the user role."""
     user = get_current_user()
     if not user:
         return redirect(url_for("login"))
@@ -133,34 +140,39 @@ def dashboard():
     events = load_data("events.json")
     registrations = load_data("registrations.json")
 
+    dashboard_items = []
+    tickets = []
+
     if user.role == "organizer":
-        cards = []
         for event in events:
             if event["organizer_id"] == user.user_id:
-                tickets_sold = 0
-                sales = 0
+                card = event.copy()
+                card["tickets_sold"] = 0
+                card["sales"] = 0
                 for registration in registrations:
                     if registration["event_id"] == event["id"]:
-                        tickets_sold += 1
-                        sales += registration["price"]
-                card = event.copy()
-                card["tickets_sold"] = tickets_sold
-                card["sales"] = sales
-                cards.append(card)
-        return render_template("dashboard.html", user=user, organizer_events=cards)
+                        card["tickets_sold"] += 1
+                        card["sales"] += registration["price"]
+                dashboard_items.append(card)
+        reminders = []
+    else:
+        event_lookup = {}
+        for event in events:
+            event_lookup[event["id"]] = event
+        for registration in registrations:
+            if registration["participant_id"] == user.user_id:
+                ticket_details = registration.copy()
+                ticket_details["event"] = event_lookup.get(registration["event_id"], {})
+                tickets.append(ticket_details)
+        reminders = make_reminders(user.user_id)
 
-    event_lookup = {}
-    for event in events:
-        event_lookup[event["id"]] = event
-
-    tickets = []
-    for registration in registrations:
-        if registration["participant_id"] == user.user_id:
-            ticket_details = registration.copy()
-            ticket_details["event"] = event_lookup.get(registration["event_id"], {})
-            tickets.append(ticket_details)
-    reminders = make_reminders(user.user_id)
-    return render_template("dashboard.html", user=user, tickets=tickets, reminders=reminders)
+    return render_template(
+        "dashboard.html",
+        user=user,
+        created_events=dashboard_items,
+        tickets=tickets,
+        reminders=reminders,
+    )
 
 
 @app.get("/events")
@@ -169,7 +181,7 @@ def events():
     search = request.args.get("search", "").lower()
     results = []
     for record in load_data("events.json"):
-        if not search or search in record["title"].lower() or search in record["location"].lower():
+        if not search or search in record["title"].lower() or search in record["category"].lower() or search in record["location"].lower():
             results.append(record)
     return render_template("events.html", events=results)
 
@@ -178,9 +190,12 @@ def events():
 def create_event():
     """Create an event."""
     user = get_current_user()
-    if not user or user.role != "organizer":
-        flash("Only organizers can create events.", "error")
+    if not user:
+        flash("Log in to create an event.", "error")
         return redirect(url_for("login"))
+    if user.role != "organizer":
+        flash("Only organizers can create events.", "error")
+        return redirect(url_for("dashboard"))
 
     categories = copy_categories(CATEGORIES)
     if request.method == "POST":
@@ -243,9 +258,12 @@ def register_for_event(event_id):
     """Register for an event and create a ticket."""
     user = get_current_user()
     event = find_event(event_id)
-    if not user or user.role != "participant":
-        flash("Log in as a participant first.", "error")
+    if not user:
+        flash("Log in to register for an event.", "error")
         return redirect(url_for("login"))
+    if user.role != "participant":
+        flash("Only participants can register for events.", "error")
+        return redirect(url_for("event_details", event_id=event_id))
 
     registrations = load_data("registrations.json")
     registered_pairs = set()

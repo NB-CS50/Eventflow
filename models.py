@@ -44,23 +44,23 @@ class User(ABC):
 
 
 class Organizer(User):
-    """Represent a person who creates events."""
+    """Represent a user who creates events."""
 
     role = "organizer"
 
     def welcome_message(self):
         """Give the organizer message."""
-        return "Create events and manage your attendees."
+        return "Create events and manage participants."
 
 
 class Participant(User):
-    """Represent a person who joins events."""
+    """Represent a user who joins events."""
 
     role = "participant"
 
     def welcome_message(self):
         """Give the participant message."""
-        return "Find events and open your tickets."
+        return "Browse events and view your tickets."
 
 
 def user_from_dict(data):

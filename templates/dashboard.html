@@ -8,7 +8,7 @@
     <a class="button" href="{{ url_for('create_event') }}">Create event</a>
     <h2>Your events</h2>
     <section class="grid">
-        {% for event in organizer_events %}
+        {% for event in created_events %}
             <article class="card">
                 <h3>{{ event.title }}</h3>
                 <p>{{ event.tickets_sold }} tickets sold</p>
@@ -20,7 +20,7 @@
         {% endfor %}
     </section>
 {% else %}
-    <a class="button" href="{{ url_for('events') }}">Find events</a>
+    <a class="button" href="{{ url_for('events') }}">Browse events</a>
     <h2>Your tickets</h2>
     <section class="grid">
         {% for ticket in tickets %}
@@ -30,14 +30,15 @@
                 <a href="{{ url_for('ticket', registration_id=ticket.id) }}">Open ticket</a>
             </article>
         {% else %}
-            <p>You have no tickets yet.</p>
+            <p>You have not joined an event yet.</p>
         {% endfor %}
     </section>
+
     <h2>Reminders</h2>
     {% for reminder in reminders %}
         <p class="card">{{ reminder.message }}</p>
     {% else %}
-        <p>No reminders. They appear for registered events starting within 24 hours.</p>
+        <p>No reminders. They appear when an event reaches its reminder time.</p>
     {% endfor %}
     {% if reminders %}
         <script>

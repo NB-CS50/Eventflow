@@ -15,7 +15,7 @@
     {% for event in events %}
         <article class="card">
             <h2>{{ event.title }}</h2>
-            <p>{{ event.category }}</p>
+            <p><span class="tag">{{ event.category }}</span></p>
             <p>{{ event.date_time.replace('T', ' ') }}</p>
             <p>{{ event.location }}</p>
             <p>{{ 'Free' if event.price == 0 else 'GHS %.2f'|format(event.price) }}</p>

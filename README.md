@@ -6,7 +6,9 @@ This is the beginner version of EventFlow. The Python code is kept in only three
 - `models.py` contains the classes.
 - `helpers.py` contains files, recursion, weather and reminders.
 
-Organizers can choose a basic event category or select `Other` and type their own category.
+Users choose an account type when registering. Organizers create and manage events. Participants browse and join events. Users can also choose a basic event category or select `Other` and type their own category.
+
+The homepage uses simple HTML sections. Two small Jinja loops display the category labels and weather cards. Python sends the categories and live weather to the page. One API request gets the weather for Accra, Kumasi, Tamale, Cape Coast and Takoradi.
 
 ## Run on Windows
 
@@ -99,3 +101,16 @@ git push
 6. Deploy and open the generated website link.
 
 The free Render service can reset JSON data when it restarts. It is suitable for a class demonstration, but not permanent data storage.
+
+## Edit the Website Style
+
+Open `static/style.css`.
+
+- Change `#5b4de8` to change the main purple colour.
+- Edit `.hero` to change the home banner.
+- Edit `.card` to change event and dashboard cards.
+- Edit `.button` to change buttons.
+- Edit `.tag` to change category labels.
+- Edit `templates/home.html` to change the home page words and steps.
+
+Save the file and refresh the website. In Codespaces, use `git add .`, `git commit` and `git push` after editing.
