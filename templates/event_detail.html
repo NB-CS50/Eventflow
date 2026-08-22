@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} | EventFlow{% endblock %}
+{% block content %}
+<section class="card detail-card">
+    <span class="badge">{{ display_status }}</span>
+    <h1>{{ event.title }}</h1>
+    <p>{{ event.description }}</p>
+    <dl>
+        <div><dt>Category</dt><dd>{{ event.category }}</dd></div>
+        <div><dt>Date</dt><dd>{{ event.date_time.replace('T', ' ') }}</dd></div>
+        <div><dt>Location</dt><dd>{{ event.location }}</dd></div>
+        <div><dt>Spaces left</dt><dd>{{ spaces }}</dd></div>
+        <div><dt>Price</dt><dd>{{ 'Free' if event.price == 0 else 'GHS %.2f'|format(event.price) }}</dd></div>
+        <div><dt>Reminder</dt><dd>{{ event.reminder_hours|default(24) }} hours before</dd></div>
+    </dl>
+    {% if weather and not weather.error %}
+        <div class="weather">
+            <strong>Live weather information</strong>
+            <span>{{ weather.name }}{% if weather.country %}, {{ weather.country }}{% endif %}: {{ weather.temperature }}°C, {{ weather.condition }}, {{ weather.precipitation }} mm precipitation</span>
+        </div>
+    {% else %}
+        <p class="message error">{{ weather.error if weather else 'Weather information is unavailable.' }}</p>
+    {% endif %}
+    <div class="actions">
+        {% if session.get('role') == 'participant' and display_status == 'Upcoming' and spaces > 0 %}
+            <form method="post" action="{{ url_for('tickets.register_for_event', event_id=event.id) }}">
+                <button type="submit">Register</button>
+            </form>
+        {% endif %}
+        {% if session.get('user_id') == event.organizer_id %}
+            <a class="button" href="{{ url_for('events.edit_event', event_id=event.id) }}">Edit</a>
+            <a class="button secondary" href="{{ url_for('tickets.sales_report', event_id=event.id) }}">Sales</a>
+            <a class="button secondary" href="{{ url_for('tickets.attendance', event_id=event.id) }}">Attendance</a>
+            <form method="post" action="{{ url_for('events.delete_event', event_id=event.id) }}">
+                <button class="danger" type="submit">Delete</button>
+            </form>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
