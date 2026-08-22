@@ -1,118 +1,119 @@
 {% extends "base.html" %}
 {% block title %}Home | EventFlow{% endblock %}
+{% block body_class %}home-body{% endblock %}
 {% block content %}
-<section class="home-cover">
-    <div class="cover-text">
-        <p class="small-title">WELCOME TO EVENTFLOW</p>
+<section class="home-page cover-page">
+    <div class="home-content cover-content">
+        <p class="eyebrow">WELCOME TO EVENTFLOW</p>
         <h1>Your events. Your plans. One simple place.</h1>
         <p>EventFlow connects organizers and participants through event creation, registration, weather updates, reminders and digital tickets.</p>
-        <div class="cover-buttons">
-            <a class="button light-button" href="{{ url_for('events') }}">Explore Events</a>
-            <a class="button outline-button" href="{{ url_for('register') }}">Create Account</a>
+        <div class="actions center-actions">
+            <a class="button gold-button" href="{{ url_for('events.list_events') }}">Explore Events</a>
+            {% if not session.get('user_id') %}
+                <a class="button outline-button" href="{{ url_for('auth.register') }}">Create Account</a>
+            {% endif %}
+        </div>
+        <a class="scroll-link" href="#discover">See what EventFlow can do ↓</a>
+    </div>
+</section>
+
+<section class="home-page discover-page" id="discover">
+    <div class="home-content">
+        <p class="eyebrow">FIND YOUR NEXT EVENT</p>
+        <h2>Something for every interest</h2>
+        <p class="section-intro">Browse simple categories, check the weather and choose an event that works for you.</p>
+        <div class="category-list">
+            {% for category in ['Academic', 'Arts', 'Business', 'Community', 'Entertainment', 'Health', 'Sports', 'Technology'] %}
+                <span>{{ category }}</span>
+            {% endfor %}
+        </div>
+        <h3>Weather around Ghana</h3>
+        <div class="weather-grid">
+            {% for city in city_weather %}
+                <div class="weather-card">
+                    <strong>{{ city.name }}</strong>
+                    {% if city.error %}
+                        <span>{{ city.error }}</span>
+                    {% else %}
+                        <span>{{ city.temperature }}°C</span>
+                        <small>{{ city.condition }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     </div>
 </section>
 
-<section class="home-section">
-    <p class="section-label">EXPLORE</p>
-    <h2>Events for every interest</h2>
-    <p>Search by event name, category or location and find something that suits you.</p>
-    <div class="category-list">
-        {% for category in categories %}
-            <span class="category-pill">{{ category }}</span>
-        {% endfor %}
+<section class="home-page roles-page">
+    <div class="home-content">
+        <p class="eyebrow">TWO SIMPLE ROLES</p>
+        <h2>Use EventFlow your way</h2>
+        <div class="role-grid">
+            <article class="role-card participant-card">
+                <p class="role-number">01</p>
+                <h3>For participants</h3>
+                <ul>
+                    <li>Discover and register for events</li>
+                    <li>Receive a secure digital ticket</li>
+                    <li>Check weather before attending</li>
+                    <li>See reminders before the event</li>
+                </ul>
+            </article>
+            <article class="role-card organizer-card">
+                <p class="role-number">02</p>
+                <h3>For organizers</h3>
+                <ul>
+                    <li>Create and update events</li>
+                    <li>Choose when reminders are sent</li>
+                    <li>Manage attendees and check-ins</li>
+                    <li>View ticket sales and export records</li>
+                </ul>
+            </article>
+        </div>
     </div>
 </section>
 
-<section class="home-section weather-section">
-    <p class="section-label">LIVE WEATHER</p>
-    <h2>Plan before you go</h2>
-    <p>Check the weather in major areas before attending an outdoor event.</p>
-    <div class="weather-grid">
-        {% for weather in city_weather %}
-            <div class="weather-card">
-                <h3>{{ weather.city }}</h3>
-                {% if weather.error %}
-                    <p>Weather unavailable</p>
-                {% else %}
-                    <p class="temperature">{{ weather.temperature }}°C</p>
-                    <p>{{ weather.condition }}</p>
-                {% endif %}
+<section class="home-page journey-page">
+    <div class="home-content">
+        <p class="eyebrow light-text">YOUR EVENT JOURNEY</p>
+        <h2>From discovery to check-in</h2>
+        <div class="journey-grid">
+            <div><strong>1</strong><h3>Discover</h3><p>Search events by name, category or price.</p></div>
+            <div><strong>2</strong><h3>Register</h3><p>Reserve a place and receive your ticket.</p></div>
+            <div><strong>3</strong><h3>Prepare</h3><p>Read your reminder and check the weather.</p></div>
+            <div><strong>4</strong><h3>Attend</h3><p>Present your ticket code at the event.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="home-page guide-page">
+    <div class="home-content">
+        <p class="eyebrow">HOW TO USE THE APP</p>
+        <h2>Start in three steps</h2>
+        <div class="guide-grid">
+            <div class="guide-card">
+                <h3>Participant</h3>
+                <ol>
+                    <li>Create a participant account.</li>
+                    <li>Open Events and choose one.</li>
+                    <li>Register and open My Tickets.</li>
+                </ol>
             </div>
-        {% endfor %}
-    </div>
-</section>
-
-<section class="home-section">
-    <p class="section-label">TWO WAYS TO USE EVENTFLOW</p>
-    <h2>Participants and organizers</h2>
-    <div class="role-grid">
-        <div class="role-card">
-            <p class="role-name">FOR PARTICIPANTS</p>
-            <h3>Find your next experience</h3>
-            <ul>
-                <li>Discover and search for events</li>
-                <li>Check event weather</li>
-                <li>Register and receive a ticket</li>
-                <li>Get reminder notifications</li>
-            </ul>
-            <a class="button" href="{{ url_for('events') }}">Browse Events</a>
+            <div class="guide-card">
+                <h3>Organizer</h3>
+                <ol>
+                    <li>Create an organizer account.</li>
+                    <li>Use the dashboard to create an event.</li>
+                    <li>Manage tickets, sales and attendance.</li>
+                </ol>
+            </div>
         </div>
-        <div class="role-card">
-            <p class="role-name">FOR ORGANIZERS</p>
-            <h3>Bring your event to life</h3>
-            <ul>
-                <li>Create and publish events</li>
-                <li>Choose prices and capacity</li>
-                <li>Set participant reminders</li>
-                <li>Manage tickets and attendance</li>
-            </ul>
-            <a class="button" href="{{ url_for('register') }}">Create Account</a>
+        <div class="actions center-actions">
+            <a class="button" href="{{ url_for('events.list_events') }}">Browse Events</a>
+            {% if not session.get('user_id') %}
+                <a class="button secondary" href="{{ url_for('auth.register') }}">Get Started</a>
+            {% endif %}
         </div>
     </div>
-</section>
-
-<section class="home-section journey-section">
-    <p class="section-label">THE EVENT JOURNEY</p>
-    <h2>From discovery to check-in</h2>
-    <div class="journey-grid">
-        <div class="journey-card"><span>1</span><h3>Discover</h3><p>Find an event you enjoy.</p></div>
-        <div class="journey-card"><span>2</span><h3>Register</h3><p>Receive your ticket code.</p></div>
-        <div class="journey-card"><span>3</span><h3>Prepare</h3><p>Check weather and reminders.</p></div>
-        <div class="journey-card"><span>4</span><h3>Attend</h3><p>Present your code at check-in.</p></div>
-    </div>
-</section>
-
-<section class="home-section">
-    <p class="section-label">QUICK GUIDE</p>
-    <h2>How to use EventFlow</h2>
-    <div class="guide-grid">
-        <div class="guide-card">
-            <h3>As a participant</h3>
-            <ol>
-                <li>Create a Participant account.</li>
-                <li>Browse and open an event.</li>
-                <li>Register to receive your ticket.</li>
-                <li>Check your dashboard for reminders.</li>
-                <li>Use your ticket code at check-in.</li>
-            </ol>
-        </div>
-        <div class="guide-card">
-            <h3>As an organizer</h3>
-            <ol>
-                <li>Create an Organizer account.</li>
-                <li>Create an event from your dashboard.</li>
-                <li>Add the event and reminder details.</li>
-                <li>View participants and ticket sales.</li>
-                <li>Use ticket codes to check people in.</li>
-            </ol>
-        </div>
-    </div>
-</section>
-
-<section class="final-call">
-    <h2>Ready to get started?</h2>
-    <p>Find your next event or begin planning one today.</p>
-    <a class="button light-button" href="{{ url_for('register') }}">Join EventFlow</a>
 </section>
 {% endblock %}

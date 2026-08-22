@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Organizer Dashboard | EventFlow{% endblock %}
+{% block content %}
+<section class="card">
+    <p class="eyebrow">Organizer dashboard</p>
+    <h1>Welcome, {{ user.name }}</h1>
+    <p>Create an event, then use its detail page to edit it, view sales, manage attendance or export attendees.</p>
+    <div class="actions">
+        <a class="button" href="{{ url_for('events.create_event') }}">Create event</a>
+        <a class="button secondary" href="{{ url_for('events.list_events') }}">View events</a>
+    </div>
+</section>
+{% endblock %}

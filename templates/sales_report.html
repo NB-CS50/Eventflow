@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Sales Report | EventFlow{% endblock %}
+{% block content %}
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Organizer report</p>
+        <h1>{{ event.title }}</h1>
+    </div>
+    <a class="button" href="{{ url_for('tickets.attendee_export', event_id=event.id) }}">Export CSV</a>
+</div>
+<section class="metrics">
+    <article class="card"><strong>{{ summary.tickets_sold }}</strong><span>Tickets sold</span></article>
+    <article class="card"><strong>{{ summary.remaining }}</strong><span>Spaces left</span></article>
+    <article class="card"><strong>GHS {{ '%.2f'|format(summary.revenue) }}</strong><span>Revenue</span></article>
+    <article class="card"><strong>{{ summary.checked_in }}</strong><span>Checked in</span></article>
+</section>
+<div class="actions">
+    <a class="button secondary" href="{{ url_for('tickets.attendance', event_id=event.id) }}">Manage attendance</a>
+    <a class="button secondary" href="{{ url_for('events.event_detail', event_id=event.id) }}">Back to event</a>
+</div>
+{% endblock %}

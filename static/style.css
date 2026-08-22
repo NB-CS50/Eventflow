@@ -1,367 +1,127 @@
-* {
-    box-sizing: border-box;
+:root {
+    --dark: #163f45;
+    --teal: #24706f;
+    --light-teal: #dcebe6;
+    --sand: #f3cf8f;
+    --cream: #fffaf0;
+    --white: #ffffff;
+    --border: #cbd9d5;
+    --muted: #5c706f;
+    --coral: #d9664c;
+    --success: #dff1e5;
+    --error: #f9dfdc;
+    --danger: #a9372a;
 }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
     margin: 0;
-    color: #222222;
-    background: #f5f5f5;
-    font-family: Arial, sans-serif;
-    line-height: 1.5;
+    color: var(--dark);
+    background: var(--cream);
+    font: 16px/1.5 Arial, sans-serif;
 }
 
 nav {
-    display: flex;
-    justify-content: space-between;
-    padding: 18px 5%;
-    background: white;
-    border-bottom: 1px solid #dddddd;
-}
-
-nav a {
-    margin-left: 15px;
-    color: #222222;
-    font-weight: bold;
-    text-decoration: none;
-}
-
-.brand {
-    margin-left: 0;
-    color: #5b4de8;
-    font-size: 22px;
-}
-
-main {
-    width: 90%;
-    max-width: 900px;
-    margin: 35px auto;
-}
-
-.home-cover {
-    display: flex;
-    justify-content: center;
-    padding: 45px;
-    color: white;
-    background: #5b4de8;
-    border-radius: 10px;
-}
-
-.cover-text {
-    width: 75%;
-    text-align: center;
-}
-
-.cover-text h1 {
-    margin: 10px 0 15px;
-    font-size: 42px;
-    line-height: 1.15;
-}
-
-.cover-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 25px;
-}
-
-.small-title,
-.section-label,
-.role-name {
-    font-weight: bold;
-    letter-spacing: 1px;
-}
-
-.light-button {
-    color: #5b4de8;
-    background: white;
-}
-
-.outline-button {
-    color: white;
-    background: transparent;
-    border: 1px solid white;
-}
-
-.section-label,
-.role-name {
-    color: #5b4de8;
-}
-
-.home-section {
-    padding: 38px 0;
-    text-align: center;
-}
-
-.home-section h2 {
-    margin: 6px 0;
-}
-
-.category-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 22px;
-}
-
-.category-pill {
-    padding: 9px 14px;
-    color: #4135ba;
-    background: #eceafd;
-    border-radius: 20px;
-    font-weight: bold;
-}
-
-.weather-section {
-    padding: 35px 25px;
-    background: #e9f7f7;
-    border-radius: 10px;
-}
-
-.weather-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-top: 22px;
-}
-
-.weather-card {
-    padding: 15px 10px;
-    background: white;
-    border: 1px solid #c9e4e4;
-    border-radius: 8px;
-}
-
-.weather-card h3,
-.weather-card p {
-    margin: 5px 0;
-}
-
-.temperature {
-    color: #007979;
-    font-size: 25px;
-    font-weight: bold;
-}
-
-.role-grid,
-.guide-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    margin-top: 25px;
-    text-align: left;
-}
-
-.role-card,
-.guide-card {
-    padding: 25px;
-    background: white;
-    border: 1px solid #dddddd;
-    border-radius: 8px;
-}
-
-.role-card h3,
-.guide-card h3 {
-    margin-top: 5px;
-}
-
-.role-card li,
-.guide-card li {
-    margin-bottom: 8px;
-}
-
-.journey-section {
-    padding: 35px 25px;
-    background: #eeeefe;
-    border-radius: 10px;
-}
-
-.journey-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-top: 25px;
-}
-
-.journey-card {
-    padding: 20px 12px;
-    background: white;
-    border: 1px solid #d6d3fa;
-    border-radius: 8px;
-}
-
-.journey-card span {
-    display: inline-block;
-    width: 34px;
-    padding: 5px;
-    color: white;
-    background: #5b4de8;
-    border-radius: 50%;
-    font-weight: bold;
-}
-
-.journey-card h3 {
-    margin: 10px 0 5px;
-}
-
-.final-call {
-    padding: 35px;
-    color: white;
-    background: #5b4de8;
-    border-radius: 10px;
-    text-align: center;
-}
-
-.final-call h2 {
-    margin-top: 0;
-}
-
-.card {
-    padding: 20px;
-    background: white;
-    border: 1px solid #dddddd;
-    border-radius: 8px;
-}
-
-.form-card {
-    max-width: 560px;
-    margin: auto;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.top-row {
+    position: relative;
+    z-index: 2;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+    min-height: 72px;
+    padding: 1rem max(5vw, 1.25rem);
+    background: var(--cream);
+    border-bottom: 1px solid var(--border);
 }
 
-form {
-    display: grid;
-    gap: 15px;
-}
+nav a { color: var(--dark); text-decoration: none; font-weight: 700; }
+.brand { color: var(--teal); font-size: 1.5rem; }
+.nav-links { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+main { width: min(1050px, 90%); margin: 3rem auto; }
+h1 { margin: 0 0 1rem; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.05; }
+h2 { margin: .5rem 0 1rem; font-size: clamp(2rem, 4vw, 3rem); line-height: 1.1; }
+h3 { margin: .5rem 0; }
+.eyebrow { margin: 0 0 .75rem; color: var(--coral); font-weight: 700; letter-spacing: .08em; }
+.muted, small { color: var(--muted); }
+.card { padding: 1.5rem; background: var(--white); border: 1px solid var(--border); border-radius: 12px; }
+.form-card { max-width: 560px; margin: auto; }
+.wide-form { max-width: 720px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.stack { display: grid; gap: 1rem; }
+.event-card { display: flex; flex-direction: column; align-items: flex-start; }
+.event-card a { margin-top: auto; }
+.badge { display: inline-block; padding: .25rem .65rem; color: var(--dark); background: var(--light-teal); border-radius: 999px; font-size: .85rem; font-weight: 700; }
+.page-heading, .actions, .two-columns, .metrics { display: flex; align-items: center; gap: 1rem; }
+.page-heading { justify-content: space-between; margin-bottom: 1.5rem; }
+.actions { flex-wrap: wrap; margin-top: 1.5rem; }
+.two-columns > * { flex: 1; }
+.metrics { align-items: stretch; flex-wrap: wrap; margin: 1.5rem 0; }
+.metrics .card { flex: 1; min-width: 180px; }
+.metrics strong { display: block; font-size: 1.65rem; }
+form { display: grid; gap: 1rem; }
+label { display: grid; gap: .35rem; font-weight: 700; }
+input, select, textarea, button { width: 100%; padding: .8rem; border: 1px solid var(--border); border-radius: 7px; font: inherit; }
+button, .button { display: inline-block; width: auto; border: 0; color: var(--white); background: var(--teal); cursor: pointer; text-decoration: none; }
+.button { padding: .75rem 1rem; border-radius: 7px; font-weight: 700; }
+.secondary { color: var(--dark); background: var(--light-teal); }
+.danger { background: var(--danger); }
+.message { padding: .8rem 1rem; border-radius: 7px; }
+.success { background: var(--success); }
+.error { background: var(--error); }
+.filter-bar { grid-template-columns: 2fr 1fr 1fr auto; margin-bottom: 1.5rem; }
+.check-in-form { grid-template-columns: 1fr auto; max-width: 620px; }
+dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; }
+dl div { padding: 1rem; background: var(--light-teal); border-radius: 8px; }
+dt { color: var(--muted); font-size: .85rem; font-weight: 700; text-transform: uppercase; }
+dd { margin: .25rem 0 0; }
+.weather { display: grid; gap: .25rem; margin-top: 1rem; padding: 1rem; background: var(--light-teal); border-radius: 8px; }
+.ticket { max-width: 600px; margin: auto; text-align: center; }
+.ticket-mark { margin: 1.5rem auto; padding: 1rem; border: 2px dashed var(--teal); border-radius: 10px; color: var(--teal); font-weight: 700; letter-spacing: .18em; }
+.ticket-code { font: 700 1.1rem monospace; overflow-wrap: anywhere; }
+.table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+table { width: 100%; border-collapse: collapse; background: var(--white); }
+th, td { padding: .75rem; border: 1px solid var(--border); text-align: left; }
+th { background: var(--light-teal); }
 
-label {
-    display: grid;
-    gap: 5px;
-    font-weight: bold;
-}
+.home-body main { width: 100%; margin: 0; }
+.home-body .message { width: min(1050px, 90%); margin: 1rem auto; }
+.home-page { min-height: calc(100vh - 72px); display: grid; place-items: center; padding: 4rem 5%; scroll-margin-top: 72px; }
+.home-content { width: min(1050px, 100%); text-align: center; }
+.home-content > .section-intro { max-width: 650px; margin: 0 auto 2rem; }
+.cover-page { color: var(--white); background: linear-gradient(135deg, var(--dark), var(--teal)); }
+.cover-content { max-width: 850px; }
+.cover-content > p:not(.eyebrow) { max-width: 720px; margin: 0 auto; font-size: 1.15rem; }
+.cover-page .eyebrow, .light-text { color: var(--sand); }
+.center-actions { justify-content: center; }
+.gold-button { color: var(--dark); background: var(--sand); }
+.outline-button { color: var(--white); background: transparent; border: 1px solid var(--white); }
+.scroll-link { display: inline-block; margin-top: 3rem; color: var(--white); text-decoration: none; }
+.discover-page { background: var(--cream); }
+.category-list { display: flex; justify-content: center; flex-wrap: wrap; gap: .75rem; margin-bottom: 2.5rem; }
+.category-list span { padding: .65rem 1rem; background: var(--light-teal); border-radius: 999px; font-weight: 700; }
+.weather-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem; }
+.weather-card { display: grid; gap: .25rem; padding: 1.25rem; background: var(--white); border: 1px solid var(--border); border-radius: 12px; }
+.weather-card strong { font-size: 1.1rem; }
+.weather-card span { color: var(--coral); font-size: 1.25rem; font-weight: 700; }
+.roles-page { background: var(--light-teal); }
+.role-grid, .guide-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2rem; text-align: left; }
+.role-card, .guide-card { padding: 2rem; border-radius: 14px; }
+.participant-card { background: var(--white); }
+.organizer-card { background: var(--sand); }
+.role-number { margin: 0; color: var(--coral); font-size: 2rem; font-weight: 700; }
+.role-card li, .guide-card li { margin: .65rem 0; }
+.journey-page { color: var(--white); background: linear-gradient(135deg, var(--dark), var(--teal)); }
+.journey-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2rem; }
+.journey-grid div { padding: 1.5rem; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .25); border-radius: 12px; }
+.journey-grid strong { display: inline-grid; place-items: center; width: 42px; height: 42px; color: var(--dark); background: var(--sand); border-radius: 50%; }
+.guide-page { background: var(--cream); }
+.guide-card { background: var(--white); border: 1px solid var(--border); }
 
-input,
-select,
-button {
-    padding: 12px;
-    border: 1px solid #cccccc;
-    border-radius: 6px;
-    font: inherit;
-}
-
-button,
-.button {
-    color: white;
-    background: #5b4de8;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.button {
-    display: inline-block;
-    padding: 12px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-}
-
-.search {
-    grid-template-columns: 1fr auto;
-    margin-bottom: 20px;
-}
-
-.message {
-    padding: 12px;
-    border-left: 4px solid #5b4de8;
-}
-
-.success {
-    background: #dff3e5;
-}
-
-.error {
-    background: #f8dddd;
-}
-
-.weather {
-    margin: 15px 0;
-    padding: 15px;
-    background: #e5f5f5;
-    border-left: 4px solid #008f8f;
-}
-
-.ticket {
-    max-width: 550px;
-    margin: auto;
-    text-align: center;
-    border: 2px dashed #5b4de8;
-}
-
-.ticket-code {
-    font-family: monospace;
-    font-size: 19px;
-    font-weight: bold;
-}
-
-.tag {
-    display: inline-block;
-    padding: 5px 10px;
-    color: #4135ba;
-    background: #eceafd;
-    border-radius: 12px;
-    font-weight: bold;
-}
-
-.space-top {
-    margin-top: 15px;
-}
-
-@media (max-width: 600px) {
-    nav,
-    .top-row {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    nav a {
-        margin: 0 12px 0 0;
-    }
-
-    .grid,
-    .search,
-    .home-cover,
-    .weather-grid,
-    .role-grid,
-    .journey-grid,
-    .guide-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .home-cover {
-        padding: 35px 25px;
-    }
-
-    .cover-text {
-        width: 100%;
-    }
-
-    .cover-text h1 {
-        font-size: 34px;
-    }
-
-    .cover-buttons {
-        align-items: flex-start;
-        flex-direction: column;
-    }
+@media (max-width: 720px) {
+    nav, .page-heading, .two-columns { align-items: stretch; flex-direction: column; }
+    .filter-bar, .check-in-form, .weather-grid, .role-grid, .guide-grid, .journey-grid { grid-template-columns: 1fr; }
+    .home-page { min-height: auto; padding: 5rem 1.25rem; }
+    .nav-links { justify-content: center; }
 }

@@ -1,43 +1,29 @@
-"""Test the simple EventFlow website."""
+"""Test the full EventFlow website."""
 
+import csv
 from datetime import datetime, timedelta
 
-import app as app_file
-import helpers
-from models import Organizer, Participant
+from app import create_app
+from services.category_service import flatten_categories
+from services.reminder_service import check_upcoming_events
+from services.weather_service import geocode_location, get_weather, weather_label
 
 
-def setup_client(tmp_path, monkeypatch):
-    """Create a test website with empty files."""
-    monkeypatch.setattr(helpers, "DATA_FOLDER", tmp_path)
-    monkeypatch.setattr(
-        app_file,
-        "get_weather",
-        lambda location: {
-            "place": "Accra",
-            "country": "Ghana",
-            "temperature": 28,
-            "rain": 0,
-            "condition": "Clear",
-        },
+def make_app(tmp_path):
+    """Create an isolated test application."""
+    return create_app(
+        {
+            "TESTING": True,
+            "SECRET_KEY": "test",
+            "DATA_DIR": tmp_path / "data",
+            "EXPORT_DIR": tmp_path / "exports",
+            "REMINDER_HOURS": 24,
+        }
     )
-    monkeypatch.setattr(
-        app_file,
-        "get_city_weather",
-        lambda: [
-            {"city": "Accra", "temperature": 28, "condition": "Clear"},
-            {"city": "Kumasi", "temperature": 27, "condition": "Cloudy"},
-            {"city": "Tamale", "temperature": 31, "condition": "Clear"},
-            {"city": "Cape Coast", "temperature": 27, "condition": "Rainy"},
-            {"city": "Takoradi", "temperature": 27, "condition": "Cloudy"},
-        ],
-    )
-    app_file.app.config.update(TESTING=True, SECRET_KEY="test")
-    return app_file.app.test_client()
 
 
-def create_account(client, name, email, role):
-    """Create a test account."""
+def register(client, name, email, role):
+    """Register a test user."""
     return client.post(
         "/register",
         data={
@@ -51,8 +37,8 @@ def create_account(client, name, email, role):
     )
 
 
-def log_in(client, email):
-    """Log in a test account."""
+def login(client, email):
+    """Log in a test user."""
     return client.post(
         "/login",
         data={"email": email, "password": "secret12"},
@@ -60,111 +46,167 @@ def log_in(client, email):
     )
 
 
-def test_oop_and_recursion():
-    """Test the user classes and recursive category function."""
-    organizer = Organizer("1", "Ama", "ama@example.com")
-    participant = Participant("2", "Kojo", "kojo@example.com")
-    organizer.set_password("secret12")
-    categories = ["Academic", "Technology", "Other"]
-
-    assert organizer.check_password("secret12")
-    assert organizer.role != participant.role
-    assert organizer.welcome_message() != participant.welcome_message()
-    assert helpers.copy_categories(categories) == categories
-    assert helpers.weather_word(63) == "Rainy"
+def logout(client):
+    """Log out the current test user."""
+    return client.get("/logout", follow_redirects=True)
 
 
-def test_full_event_journey(tmp_path, monkeypatch):
-    """Test accounts, events, weather, tickets, reminders and check-in."""
-    client = setup_client(tmp_path, monkeypatch)
-    home = client.get("/")
-    assert b"Your events. Your plans. One simple place." in home.data
-    assert b"Plan before you go" in home.data
-    assert b"Participants and organizers" in home.data
-    assert b"How to use EventFlow" in home.data
-    assert b"Takoradi" in home.data
-    wrong_password = client.post(
-        "/register",
-        data={
-            "name": "Test User",
-            "email": "test@example.com",
-            "password": "secret12",
-            "confirm_password": "different",
-            "role": "participant",
-        },
-        follow_redirects=True,
+def test_recursion():
+    """Confirm nested event categories are flattened recursively."""
+    tree = {"Academic": {"Workshop": {}, "Conference": {"Research": {}}}}
+    assert flatten_categories(tree) == [
+        "Academic",
+        "Academic > Workshop",
+        "Academic > Conference",
+        "Academic > Conference > Research",
+    ]
+
+
+def test_weather_api(monkeypatch):
+    """Check the location and weather API code."""
+
+    class FakeResponse:
+        """Act like a small API response."""
+
+        def __init__(self, data):
+            """Save the fake response data."""
+            self.data = data
+
+        def raise_for_status(self):
+            """Act like a successful request."""
+            return None
+
+        def json(self):
+            """Return the fake JSON data."""
+            return self.data
+
+    def fake_get(url, params, timeout):
+        """Return fake data for each API address."""
+        if "geocoding" in url:
+            return FakeResponse(
+                {
+                    "results": [
+                        {
+                            "name": "Accra",
+                            "country": "Ghana",
+                            "latitude": 5.56,
+                            "longitude": -0.2,
+                        }
+                    ]
+                }
+            )
+        return FakeResponse(
+            {"current": {"temperature_2m": 28, "precipitation": 0, "weather_code": 0}}
+        )
+
+    monkeypatch.setattr("services.weather_service.requests.get", fake_get)
+    location = geocode_location("Accra")
+    weather = get_weather(location["latitude"], location["longitude"])
+    assert location["name"] == "Accra"
+    assert weather == {"temperature": 28, "precipitation": 0, "condition": "Clear"}
+    assert weather_label(63) == "Rainy"
+
+
+def test_home_page(tmp_path, monkeypatch):
+    """Check the full scrolling home page."""
+    monkeypatch.setattr(
+        "app.major_city_weather",
+        lambda: [{"name": "Accra", "temperature": 28, "condition": "Clear"}],
     )
-    assert b"Passwords do not match" in wrong_password.data
-    create_account(client, "Ama Organizer", "organizer@example.com", "organizer")
-    create_account(client, "Kojo Participant", "participant@example.com", "participant")
-    log_in(client, "organizer@example.com")
+    client = make_app(tmp_path).test_client()
+    page = client.get("/")
+    assert page.status_code == 200
+    assert page.data.count(b'class="home-page') == 5
+    assert b"Your events. Your plans. One simple place." in page.data
+    assert b"Weather around Ghana" in page.data
+    assert b"For participants" in page.data
+    assert b"For organizers" in page.data
 
-    organizer_dashboard = client.get("/dashboard")
-    assert b"Your events" in organizer_dashboard.data
-    assert b"Your tickets" not in organizer_dashboard.data
+
+def test_complete_event_journey(tmp_path, monkeypatch):
+    """Test accounts, events, tickets, reminders, sales, export and check-in."""
+    app = make_app(tmp_path)
+    client = app.test_client()
+    monkeypatch.setattr(
+        "routes.event_routes.planning_data",
+        lambda location: {
+            "name": location,
+            "temperature": 28,
+            "condition": "Clear",
+            "precipitation": 0,
+        },
+    )
+
+    register(client, "Ama Organizer", "organizer@example.com", "organizer")
+    register(client, "Kojo Participant", "participant@example.com", "participant")
+    organizer_login = login(client, "organizer@example.com")
+    assert b"Organizer dashboard" in organizer_login.data
 
     event_time = (datetime.now() + timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M")
     created = client.post(
         "/events/create",
         data={
-            "title": "Robotics Workshop",
-            "category": "Other",
-            "custom_category": "Robotics",
+            "title": "Engineering Workshop",
+            "category": "Technology > Engineering",
+            "description": "A practical workshop.",
             "date_time": event_time,
-            "location": "Accra, Ghana",
-            "capacity": "5",
-            "price": "20",
-            "reminder_hours": "3",
+            "location": "Accra",
+            "capacity": "2",
+            "price": "25",
+            "reminder_hours": "6",
         },
-        follow_redirects=True,
+        follow_redirects=False,
     )
-    assert b"Robotics Workshop" in created.data
-    assert b"Robotics" in created.data
-    assert helpers.load_data("events.json")[0]["reminder_hours"] == 3
-    assert b"28" in created.data
+    assert created.status_code == 302
+    event_url = created.headers["Location"]
+    event_id = event_url.rstrip("/").split("/")[-1]
+    detail = client.get(event_url)
+    assert b"Engineering Workshop" in detail.data
+    assert b"28" in detail.data
 
-    blocked_registration = client.post(
-        f"/events/{helpers.load_data('events.json')[0]['id']}/register",
-        follow_redirects=True,
-    )
-    assert b"Only participants can register for events" in blocked_registration.data
+    logout(client)
+    participant_login = login(client, "participant@example.com")
+    assert b"Participant dashboard" in participant_login.data
+    registered = client.post(f"/events/{event_id}/register", follow_redirects=True)
+    assert b"Digital ticket" in registered.data
+    assert b"new event reminder" in registered.data
 
-    event_id = helpers.load_data("events.json")[0]["id"]
-    client.get("/logout")
-    log_in(client, "participant@example.com")
-    ticket_page = client.post(f"/events/{event_id}/register", follow_redirects=True)
-    assert b"EVENTFLOW TICKET" in ticket_page.data
+    with app.app_context():
+        from storage import load_json
 
-    dashboard = client.get("/dashboard")
-    assert b"Reminder" in dashboard.data
-    assert b"alert(" in dashboard.data
-    assert b"Your tickets" in dashboard.data
-    assert b"Your events" not in dashboard.data
+        registrations = load_json("registrations.json", [])
+        assert len(registrations) == 1
+        registration = registrations[0]
+        assert registration["ticket_type"] == "Paid"
+        assert len(registration["ticket_code"]) >= 12
 
-    blocked_event = client.post(
-        "/events/create",
-        data={
-            "title": "Study Session",
-            "category": "Academic",
-            "date_time": event_time,
-            "location": "Accra, Ghana",
-            "capacity": "10",
-            "price": "0",
-            "reminder_hours": "3",
-        },
-        follow_redirects=True,
-    )
-    assert b"Only organizers can create events" in blocked_event.data
-    assert len(helpers.load_data("events.json")) == 1
+    duplicate = client.post(f"/events/{event_id}/register", follow_redirects=True)
+    assert b"already registered" in duplicate.data
 
-    registration = helpers.load_data("registrations.json")[0]
+    check_upcoming_events(app)
+    reminders = client.get("/notifications")
+    assert b"Engineering Workshop" in reminders.data
 
-    client.get("/logout")
-    log_in(client, "organizer@example.com")
+    logout(client)
+    login(client, "organizer@example.com")
+    report = client.get(f"/events/{event_id}/sales")
+    assert b"GHS 25.00" in report.data
+
+    exported = client.get(f"/events/{event_id}/attendees.csv")
+    assert exported.status_code == 200
+    rows = list(csv.DictReader(exported.data.decode("utf-8").splitlines()))
+    assert rows[0]["email"] == "participant@example.com"
+
     checked_in = client.post(
-        f"/events/{event_id}/check-in",
+        f"/events/{event_id}/attendance",
         data={"ticket_code": registration["ticket_code"]},
         follow_redirects=True,
     )
-    assert b"Participant checked in" in checked_in.data
-    assert helpers.load_data("registrations.json")[0]["checked_in"] is True
+    assert b"Ticket checked in" in checked_in.data
+
+    repeated = client.post(
+        f"/events/{event_id}/attendance",
+        data={"ticket_code": registration["ticket_code"]},
+        follow_redirects=True,
+    )
+    assert b"already been checked in" in repeated.data

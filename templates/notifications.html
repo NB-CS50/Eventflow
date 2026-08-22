@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Reminders | EventFlow{% endblock %}
+{% block content %}
+<p class="eyebrow">Notifications</p>
+<h1>Event reminders</h1>
+<section class="stack">
+    {% for notification in notifications %}
+        <article class="card">
+            <p>{{ notification.message }}</p>
+            <small>{{ notification.sent_at.replace('T', ' ') }}</small>
+        </article>
+    {% else %}
+        <p>You have no reminders yet. Each organizer chooses when the reminder should appear.</p>
+    {% endfor %}
+</section>
+{% endblock %}

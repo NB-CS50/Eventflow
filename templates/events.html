@@ -1,28 +1,43 @@
 {% extends "base.html" %}
 {% block title %}Events | EventFlow{% endblock %}
 {% block content %}
-<div class="top-row">
-    <h1>Events</h1>
+<div class="page-heading">
+    <div>
+        <p class="eyebrow">Discover</p>
+        <h1>Events</h1>
+    </div>
     {% if session.get('role') == 'organizer' %}
-        <a class="button" href="{{ url_for('create_event') }}">Create event</a>
+        <a class="button" href="{{ url_for('events.create_event') }}">Create event</a>
     {% endif %}
 </div>
-<form class="search" method="get">
-    <input name="search" placeholder="Search title or location" value="{{ request.args.get('search', '') }}">
-    <button type="submit">Search</button>
+<form class="filter-bar" method="get">
+    <input name="q" value="{{ request.args.get('q', '') }}" placeholder="Search by title">
+    <select name="category">
+        <option value="">All categories</option>
+        {% for category in categories %}
+            <option value="{{ category }}" {% if category == selected_category %}selected{% endif %}>{{ category }}</option>
+        {% endfor %}
+    </select>
+    <select name="price">
+        <option value="">Free and paid</option>
+        <option value="free" {% if request.args.get('price') == 'free' %}selected{% endif %}>Free</option>
+        <option value="paid" {% if request.args.get('price') == 'paid' %}selected{% endif %}>Paid</option>
+    </select>
+    <button type="submit">Filter</button>
 </form>
 <section class="grid">
     {% for event in events %}
-        <article class="card">
+        <article class="card event-card">
+            <span class="badge">{{ event.display_status }}</span>
             <h2>{{ event.title }}</h2>
-            <p><span class="tag">{{ event.category }}</span></p>
+            <p>{{ event.category }}</p>
             <p>{{ event.date_time.replace('T', ' ') }}</p>
             <p>{{ event.location }}</p>
-            <p>{{ 'Free' if event.price == 0 else 'GHS %.2f'|format(event.price) }}</p>
-            <a href="{{ url_for('event_details', event_id=event.id) }}">View event</a>
+            <strong>{{ 'Free' if event.price == 0 else 'GHS %.2f'|format(event.price) }}</strong>
+            <a href="{{ url_for('events.event_detail', event_id=event.id) }}">View details</a>
         </article>
     {% else %}
-        <p>No events found.</p>
+        <p>No events match your filters.</p>
     {% endfor %}
 </section>
 {% endblock %}

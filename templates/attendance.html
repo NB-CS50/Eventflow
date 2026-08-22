@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Attendance | EventFlow{% endblock %}
+{% block content %}
+<p class="eyebrow">Attendance</p>
+<h1>{{ event.title }}</h1>
+<form class="check-in-form" method="post">
+    <input name="ticket_code" placeholder="Enter ticket code" required>
+    <button type="submit">Check in</button>
+</form>
+<p>{{ summary.checked_in }} checked in · {{ summary.absent }} not checked in</p>
+<div class="table-wrap">
+    <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Ticket</th><th>Payment</th><th>Check-in</th></tr></thead>
+        <tbody>
+            {% for attendee in attendees %}
+                <tr>
+                    <td>{{ attendee.name }}</td>
+                    <td>{{ attendee.email }}</td>
+                    <td>{{ attendee.ticket_code }}</td>
+                    <td>{{ attendee.payment_status }}</td>
+                    <td>{{ 'Yes' if attendee.checked_in else 'No' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">No attendees yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<a class="button" href="{{ url_for('tickets.attendee_export', event_id=event.id) }}">Export CSV</a>
+{% endblock %}

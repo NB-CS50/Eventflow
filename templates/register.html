@@ -8,13 +8,12 @@
         <label>Email<input type="email" name="email" required></label>
         <label>Password<input type="password" name="password" minlength="6" required></label>
         <label>Confirm password<input type="password" name="confirm_password" minlength="6" required></label>
-        <label>Account type
-            <select name="role">
+        <label>Role
+            <select name="role" required>
                 <option value="participant">Participant</option>
                 <option value="organizer">Organizer</option>
             </select>
         </label>
-        <p>Participants join events. Organizers create and manage events.</p>
         <button type="submit">Register</button>
     </form>
 </section>

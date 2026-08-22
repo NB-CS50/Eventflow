@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Participant Dashboard | EventFlow{% endblock %}
+{% block content %}
+<section class="card">
+    <p class="eyebrow">Participant dashboard</p>
+    <h1>Welcome, {{ user.name }}</h1>
+    <p>Find an event, register and open your secure digital ticket.</p>
+    <div class="actions">
+        <a class="button" href="{{ url_for('events.list_events') }}">Discover events</a>
+        <a class="button secondary" href="{{ url_for('tickets.my_tickets') }}">My tickets</a>
+    </div>
+</section>
+{% endblock %}
